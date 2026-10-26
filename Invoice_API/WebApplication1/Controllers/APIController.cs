@@ -10,8 +10,8 @@ namespace BuggyApp.Controllers
         [HttpGet]
         public IActionResult GetData()
         {
-            string result = "Invoices";
-            if(result.Length > 0) // will throw NullReferenceException
+            string result = null;
+            if(!string.IsNullOrEmpty(result))
             {
                 return Ok(new { message = "Data fetched" });
             }
