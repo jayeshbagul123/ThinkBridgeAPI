@@ -1,6 +1,6 @@
-
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using WebApplication1.DTOs;
+using WebApplication1.Models;
 using WebApplication1.Repository.Interface;
 
 namespace BuggyApp.Controllers
@@ -10,14 +10,14 @@ namespace BuggyApp.Controllers
     public class InvoiceController : ControllerBase
     {
         private readonly IInvoices _Invoice;
+
         public InvoiceController(IInvoices Invoice)
         {
             _Invoice = Invoice;
         }
+
         [HttpGet]
-
         [Route("{InvoiceID:int}")]
-
         public async Task<IActionResult> GetInvoice(int InvoiceID)
         {
             var invoice = await _Invoice.GetInvoiceAsync(InvoiceID);
@@ -25,9 +25,22 @@ namespace BuggyApp.Controllers
             if (invoice == null)
                 return NotFound("Invoice not found");
 
-            return Ok(invoice);
+            var invoiceDto = new InvoiceDto
+            {
+                InvoiceID = invoice.InvoiceID,
+                CustomerName = invoice.CustomerName,
+                ListItems = (invoice.ListItems ?? new List<InvoiceItems>())
+                    .Select(item => new InvoiceItemDto
+                    {
+                        ItemID = item.ItemID,
+                        InvoiceID = item.InvoiceID,
+                        Name = item.name,
+                        Price = item.price
+                    })
+                    .ToList()
+            };
+
+            return Ok(invoiceDto);
         }
-
-
     }
 }
